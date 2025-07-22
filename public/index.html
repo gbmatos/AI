@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Incident Management</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #incident-form { margin-bottom: 20px; }
+    #incidents li { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Incident Management</h1>
+
+  <form id="incident-form">
+    <input type="text" id="title" placeholder="Incident title" required />
+    <br />
+    <textarea id="description" placeholder="Description"></textarea>
+    <br />
+    <button type="submit">Add Incident</button>
+  </form>
+
+  <ul id="incidents"></ul>
+
+  <script>
+    async function fetchIncidents() {
+      const res = await fetch('/api/incidents');
+      const data = await res.json();
+      const list = document.getElementById('incidents');
+      list.innerHTML = '';
+      data.forEach(inc => {
+        const li = document.createElement('li');
+        li.textContent = `${inc.title} - ${inc.description}`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('incident-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      await fetch('/api/incidents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description })
+      });
+      document.getElementById('title').value = '';
+      document.getElementById('description').value = '';
+      fetchIncidents();
+    });
+
+    fetchIncidents();
+  </script>
+</body>
+</html>
